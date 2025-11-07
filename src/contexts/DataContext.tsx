@@ -84,26 +84,38 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         zoroTitle: siteData.zoroSection?.title
       });
       
-      // Guardar SOLO en Supabase, nunca en localStorage
-      const { data: insertData, error } = await supabase
+      // FORZAR UPDATE completo en lugar de upsert
+      const { data: updateData, error } = await supabase
         .from('site_data')
-        .upsert({
-          site_id: 'theandy444',
+        .update({
           content: siteData,
           updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'site_id'
-        });
+        })
+        .eq('site_id', 'theandy444');
 
       if (error) {
-        console.error('❌ Error saving to Supabase:', error);
-        throw error;
+        console.error('❌ Error updating Supabase:', error);
+        // Si falla el update, intentar insert
+        const { error: insertError } = await supabase
+          .from('site_data')
+          .insert({
+            site_id: 'theandy444',
+            content: siteData,
+            updated_at: new Date().toISOString()
+          });
+        
+        if (insertError) {
+          console.error('❌ Error inserting to Supabase:', insertError);
+          throw insertError;
+        }
       }
 
       console.log('✅ Datos guardados correctamente en Supabase');
-      console.log('📊 Respuesta de insert:', insertData);
+      console.log('📊 Respuesta de update:', updateData);
       
       // Verificar que se guardó correctamente
+      await new Promise(resolve => setTimeout(resolve, 500)); // Esperar 500ms
+      
       const { data: verifyData, error: verifyError } = await supabase
         .from('site_data')
         .select('content')
