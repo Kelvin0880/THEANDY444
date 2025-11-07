@@ -78,14 +78,21 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const saveSiteData = async () => {
     try {
       console.log('🔄 Guardando datos en Supabase...', siteData);
+      console.log('🔍 Datos específicos a guardar:', {
+        heroTitle: siteData.hero?.title,
+        aboutStats: siteData.about?.stats,
+        zoroTitle: siteData.zoroSection?.title
+      });
       
       // Guardar SOLO en Supabase, nunca en localStorage
-      const { error } = await supabase
+      const { data: insertData, error } = await supabase
         .from('site_data')
         .upsert({
           site_id: 'theandy444',
           content: siteData,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'site_id'
         });
 
       if (error) {
@@ -94,16 +101,24 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       }
 
       console.log('✅ Datos guardados correctamente en Supabase');
+      console.log('📊 Respuesta de insert:', insertData);
       
       // Verificar que se guardó correctamente
-      const { data: verifyData } = await supabase
+      const { data: verifyData, error: verifyError } = await supabase
         .from('site_data')
         .select('content')
         .eq('site_id', 'theandy444')
         .single();
         
-      if (verifyData) {
+      if (verifyError) {
+        console.error('❌ Error verificando datos:', verifyError);
+      } else if (verifyData) {
         console.log('✅ Verificación: Datos confirmados en Supabase');
+        console.log('🔍 Datos verificados:', {
+          heroTitle: verifyData.content?.hero?.title,
+          aboutStats: verifyData.content?.about?.stats,
+          zoroTitle: verifyData.content?.zoroSection?.title
+        });
       }
       
     } catch (error) {
