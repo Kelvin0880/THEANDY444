@@ -40,7 +40,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
       
-      // Obtener datos de Supabase
+      // SIEMPRE obtener datos de Supabase, ignorar localStorage
       const { data, error } = await supabase
         .from('site_data')
         .select('*')
@@ -53,14 +53,19 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         console.log('🔄 Usando datos por defecto:', defaultSiteData);
         setSiteData(defaultSiteData as SiteData);
       } else if (data && data.content) {
-        // Usar datos de Supabase
+        // SIEMPRE usar datos de Supabase
         console.log('✅ Datos cargados desde Supabase:', data.content);
         console.log('🖼️ Imagen de Zoro:', data.content.zoroSection?.image);
         setSiteData(data.content);
-        console.log('✅ Datos cargados desde Supabase');
+        console.log('✅ Datos aplicados desde Supabase');
+      } else {
+        // Si no hay contenido, usar datos por defecto
+        console.log('🔄 No hay datos en Supabase, usando por defecto');
+        setSiteData(defaultSiteData as SiteData);
       }
     } catch (error) {
       console.error('Error loading saved data:', error);
+      setSiteData(defaultSiteData as SiteData);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +77,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   const saveSiteData = async () => {
     try {
-      // Guardar en Supabase
+      console.log('🔄 Guardando datos en Supabase...', siteData);
+      
+      // Guardar SOLO en Supabase, nunca en localStorage
       const { error } = await supabase
         .from('site_data')
         .upsert({
@@ -82,13 +89,25 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         });
 
       if (error) {
-        console.error('Error saving to Supabase:', error);
+        console.error('❌ Error saving to Supabase:', error);
         throw error;
       }
 
       console.log('✅ Datos guardados correctamente en Supabase');
+      
+      // Verificar que se guardó correctamente
+      const { data: verifyData } = await supabase
+        .from('site_data')
+        .select('content')
+        .eq('site_id', 'theandy444')
+        .single();
+        
+      if (verifyData) {
+        console.log('✅ Verificación: Datos confirmados en Supabase');
+      }
+      
     } catch (error) {
-      console.error('Error saving data:', error);
+      console.error('❌ Error saving data:', error);
       throw error;
     }
   };
