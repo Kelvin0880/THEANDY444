@@ -50,17 +50,17 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       if (error) {
         console.error('Error loading data from Supabase:', error);
         // Si no hay datos, usar los por defecto
-        console.log('🔄 Usando datos por defecto:', defaultSiteData);
+        console.log('🔄 Usando datos por defecto (error):', defaultSiteData);
         setSiteData(defaultSiteData as SiteData);
-      } else if (data && data.content) {
-        // SIEMPRE usar datos de Supabase
+      } else if (data && data.content && Object.keys(data.content).length > 0) {
+        // SOLO usar datos de Supabase SI tienen contenido
         console.log('✅ Datos cargados desde Supabase:', data.content);
         console.log('🖼️ Imagen de Zoro:', data.content.zoroSection?.image);
         setSiteData(data.content);
         console.log('✅ Datos aplicados desde Supabase');
       } else {
-        // Si no hay contenido, usar datos por defecto
-        console.log('🔄 No hay datos en Supabase, usando por defecto');
+        // Si Supabase está vacío, usar datos por defecto
+        console.log('🔄 Supabase está vacío, usando datos por defecto');
         setSiteData(defaultSiteData as SiteData);
       }
     } catch (error) {
