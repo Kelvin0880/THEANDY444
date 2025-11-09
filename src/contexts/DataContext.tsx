@@ -40,31 +40,43 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
       
+      // DIAGNÓSTICO: Verificar conexión a Supabase
+      console.log('🔧 DIAGNÓSTICO - Variables de entorno:');
+      console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+      console.log('VITE_SUPABASE_ANON_KEY:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'PRESENTE' : 'FALTANTE');
+      
       // SIEMPRE obtener datos de Supabase, ignorar localStorage
-      const { data, error } = await supabase
+      console.log('🔄 Intentando cargar datos desde Supabase...');
+      const { data, error, count } = await supabase
         .from('site_data')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('site_id', 'theandy444')
         .single();
 
+      console.log('📊 Respuesta de Supabase:');
+      console.log('- Error:', error);
+      console.log('- Data:', data);
+      console.log('- Count:', count);
+
       if (error) {
-        console.error('Error loading data from Supabase:', error);
-        // Si no hay datos, usar los por defecto
+        console.error('❌ Error loading data from Supabase:', error);
         console.log('🔄 Usando datos por defecto (error):', defaultSiteData);
         setSiteData(defaultSiteData as SiteData);
       } else if (data && data.content && Object.keys(data.content).length > 0) {
         // SOLO usar datos de Supabase SI tienen contenido
-        console.log('✅ Datos cargados desde Supabase:', data.content);
+        console.log('✅ Datos cargados desde Supabase con contenido:', data.content);
         console.log('🖼️ Imagen de Zoro:', data.content.zoroSection?.image);
+        console.log('📊 Stat comunidad:', data.content.about?.stats?.[1]?.value);
         setSiteData(data.content);
         console.log('✅ Datos aplicados desde Supabase');
       } else {
         // Si Supabase está vacío, usar datos por defecto
         console.log('🔄 Supabase está vacío, usando datos por defecto');
+        console.log('📄 Datos por defecto:', defaultSiteData);
         setSiteData(defaultSiteData as SiteData);
       }
     } catch (error) {
-      console.error('Error loading saved data:', error);
+      console.error('💥 Error crítico cargando datos:', error);
       setSiteData(defaultSiteData as SiteData);
     } finally {
       setIsLoading(false);
