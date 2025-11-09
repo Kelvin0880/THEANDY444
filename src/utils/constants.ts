@@ -30,7 +30,7 @@ export const SOCIAL_LINKS = [
   },
   {
     name: "Discord",
-    url: "https://discord.gg/jzQ8rtnV",
+    url: "https://discord.gg/kgTSUN2vG2",
     icon: "MessageCircle",
     color: "#5865f2",
   },
