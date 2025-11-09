@@ -33,16 +33,30 @@ export function ZoroForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    updateSiteData({ zoroSection: formData });
-    saveSiteData();
-    
-    toast.success('Sección Zoroversionmarimo actualizada correctamente', {
-      description: 'Los cambios se han guardado exitosamente',
-      duration: 3000,
-    });
+    try {
+      console.log('🔄 ZoroForm - Iniciando guardado...', formData);
+      
+      // Crear los nuevos datos completos
+      const newSiteData = { ...siteData, zoroSection: formData };
+      
+      // Primero actualizar el estado local
+      updateSiteData({ zoroSection: formData });
+      
+      // Luego guardar en Supabase con los datos específicos y esperar a que termine
+      await saveSiteData(newSiteData);
+      
+      console.log('✅ ZoroForm - Guardado exitoso');
+      toast.success('Sección Zoroversionmarimo actualizada correctamente', {
+        description: 'Los cambios se han guardado exitosamente',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('❌ ZoroForm - Error al guardar:', error);
+      toast.error('Error al guardar los cambios');
+    }
   };
 
   return (

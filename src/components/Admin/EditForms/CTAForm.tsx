@@ -23,10 +23,22 @@ export function CTAForm() {
     setFormData((prev: any) => ({ ...prev, features: newFeatures }));
   };
 
-  const handleSave = () => {
-    updateSiteData({ cta: formData });
-    saveSiteData();
-    toast.success('CTA Section actualizada correctamente');
+  const handleSave = async () => {
+    try {
+      console.log('🔄 CTAForm - Iniciando guardado...', formData);
+      
+      // Primero actualizar el estado local
+      updateSiteData({ cta: formData });
+      
+      // Luego guardar en Supabase y esperar a que termine
+      await saveSiteData();
+      
+      console.log('✅ CTAForm - Guardado exitoso');
+      toast.success('CTA Section actualizada correctamente');
+    } catch (error) {
+      console.error('❌ CTAForm - Error al guardar:', error);
+      toast.error('Error al guardar los cambios');
+    }
   };
 
   return (

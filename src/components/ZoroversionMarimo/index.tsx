@@ -20,6 +20,15 @@ export function ZoroversionMarimo() {
     enabled: true
   };
 
+  // DIAGNÓSTICO: Ver qué datos está recibiendo el componente
+  console.log('⚔️ ZoroSection - Datos recibidos:', {
+    zoroSection: siteData.zoroSection,
+    zoroData,
+    title: zoroData?.title,
+    image: zoroData?.image,
+    fullSiteData: siteData
+  });
+
   // Don't render if disabled
   if (!zoroData.enabled) return null;
 

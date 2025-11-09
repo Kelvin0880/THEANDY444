@@ -21,10 +21,25 @@ export function HeroForm() {
     }));
   };
 
-  const handleSave = () => {
-    updateSiteData({ hero: formData });
-    saveSiteData();
-    toast.success('Hero Section actualizada correctamente');
+  const handleSave = async () => {
+    try {
+      console.log('🔄 HeroForm - Iniciando guardado...', formData);
+      
+      // Crear los nuevos datos completos
+      const newSiteData = { ...siteData, hero: formData };
+      
+      // Primero actualizar el estado local
+      updateSiteData({ hero: formData });
+      
+      // Luego guardar en Supabase con los datos específicos y esperar a que termine
+      await saveSiteData(newSiteData);
+      
+      console.log('✅ HeroForm - Guardado exitoso');
+      toast.success('Hero Section actualizada correctamente');
+    } catch (error) {
+      console.error('❌ HeroForm - Error al guardar:', error);
+      toast.error('Error al guardar los cambios');
+    }
   };
 
   return (

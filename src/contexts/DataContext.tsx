@@ -21,7 +21,7 @@ interface SiteData {
 interface DataContextType {
   siteData: SiteData;
   updateSiteData: (newData: Partial<SiteData>) => void;
-  saveSiteData: () => Promise<void>;
+  saveSiteData: (dataToSave?: SiteData) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -67,8 +67,20 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         console.log('✅ Datos cargados desde Supabase con contenido:', data.content);
         console.log('🖼️ Imagen de Zoro:', data.content.zoroSection?.image);
         console.log('📊 Stat comunidad:', data.content.about?.stats?.[1]?.value);
+        
+        // DIAGNÓSTICO DETALLADO - Verificar estructura completa
+        console.log('🔍 DIAGNÓSTICO COMPLETO DE DATOS:');
+        console.log('- Hero Title:', data.content.hero?.title);
+        console.log('- Hero Subtitle:', data.content.hero?.subtitle);
+        console.log('- About Title:', data.content.about?.title);
+        console.log('- About Description:', data.content.about?.description);
+        console.log('- Zoro Title:', data.content.zoroSection?.title);
+        console.log('- Schedule:', data.content.schedule?.length || 0, 'items');
+        console.log('- CTA Title:', data.content.cta?.title);
+        
         setSiteData(data.content);
         console.log('✅ Datos aplicados desde Supabase');
+        console.log('🔄 Estado actual después del setSiteData:', data.content);
       } else {
         // Si Supabase está vacío, usar datos por defecto
         console.log('🔄 Supabase está vacío, usando datos por defecto');
@@ -87,20 +99,23 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setSiteData(prev => ({ ...prev, ...newData }));
   };
 
-  const saveSiteData = async () => {
+  const saveSiteData = async (dataToSave?: SiteData) => {
     try {
-      console.log('🔄 Guardando datos en Supabase...', siteData);
+      // Usar los datos proporcionados o el estado actual
+      const dataForSaving = dataToSave || siteData;
+      
+      console.log('🔄 Guardando datos en Supabase...', dataForSaving);
       console.log('🔍 Datos específicos a guardar:', {
-        heroTitle: siteData.hero?.title,
-        aboutStats: siteData.about?.stats,
-        zoroTitle: siteData.zoroSection?.title
+        heroTitle: dataForSaving.hero?.title,
+        aboutStats: dataForSaving.about?.stats,
+        zoroTitle: dataForSaving.zoroSection?.title
       });
       
       // FORZAR UPDATE completo en lugar de upsert
       const { data: updateData, error } = await supabase
         .from('site_data')
         .update({
-          content: siteData,
+          content: dataForSaving,
           updated_at: new Date().toISOString()
         })
         .eq('site_id', 'theandy444');
@@ -112,7 +127,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
           .from('site_data')
           .insert({
             site_id: 'theandy444',
-            content: siteData,
+            content: dataForSaving,
             updated_at: new Date().toISOString()
           });
         

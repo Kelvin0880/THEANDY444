@@ -22,10 +22,22 @@ export function ScheduleForm() {
     setFormData(newSchedule);
   };
 
-  const handleSave = () => {
-    updateSiteData({ schedule: formData });
-    saveSiteData();
-    toast.success('Horario de streams actualizado correctamente');
+  const handleSave = async () => {
+    try {
+      console.log('🔄 ScheduleForm - Iniciando guardado...', formData);
+      
+      // Primero actualizar el estado local
+      updateSiteData({ schedule: formData });
+      
+      // Luego guardar en Supabase y esperar a que termine
+      await saveSiteData();
+      
+      console.log('✅ ScheduleForm - Guardado exitoso');
+      toast.success('Horario de streams actualizado correctamente');
+    } catch (error) {
+      console.error('❌ ScheduleForm - Error al guardar:', error);
+      toast.error('Error al guardar los cambios');
+    }
   };
 
   return (

@@ -6,6 +6,15 @@ export function AboutSection() {
   const { siteData } = useSiteData();
   const about = siteData.about;
 
+  // DIAGNÓSTICO: Ver qué datos está recibiendo el componente
+  console.log('📋 AboutSection - Datos recibidos:', {
+    about,
+    title: about?.title,
+    description: about?.description,
+    stats: about?.stats,
+    fullSiteData: siteData
+  });
+
   return (
     <section id="about" className="py-20 bg-[#0a0a0a] relative overflow-hidden">
       {/* Background decoration */}

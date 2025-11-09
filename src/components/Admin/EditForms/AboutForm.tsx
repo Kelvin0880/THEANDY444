@@ -32,10 +32,25 @@ export function AboutForm() {
     setFormData((prev: any) => ({ ...prev, stats: newStats }));
   };
 
-  const handleSave = () => {
-    updateSiteData({ about: formData });
-    saveSiteData();
-    toast.success('Sección "Sobre Mí" actualizada correctamente');
+  const handleSave = async () => {
+    try {
+      console.log('🔄 AboutForm - Iniciando guardado...', formData);
+      
+      // Crear los nuevos datos completos
+      const newSiteData = { ...siteData, about: formData };
+      
+      // Primero actualizar el estado local
+      updateSiteData({ about: formData });
+      
+      // Luego guardar en Supabase con los datos específicos y esperar a que termine
+      await saveSiteData(newSiteData);
+      
+      console.log('✅ AboutForm - Guardado exitoso');
+      toast.success('Sección "Sobre Mí" actualizada correctamente');
+    } catch (error) {
+      console.error('❌ AboutForm - Error al guardar:', error);
+      toast.error('Error al guardar los cambios');
+    }
   };
 
   return (

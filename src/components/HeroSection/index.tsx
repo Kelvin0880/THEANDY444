@@ -6,6 +6,14 @@ export function HeroSection() {
   const { siteData } = useSiteData();
   const hero = siteData.hero;
 
+  // DIAGNÓSTICO: Ver qué datos está recibiendo el componente
+  console.log('🎯 HeroSection - Datos recibidos:', {
+    hero,
+    title: hero?.title,
+    subtitle: hero?.subtitle,
+    fullSiteData: siteData
+  });
+
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-black via-black to-[#0a0a0a]">
       {/* Animated Background Elements */}
